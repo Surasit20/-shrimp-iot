@@ -88,12 +88,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         mainAxisSpacing: 20,
                         padding: EdgeInsets.all(20),
                         children: [
-                          _switchLayout("ปั้มน้ำเข้า", 0),
-                          _switchLayout("ปั้มน้ำออก", 0),
-                          _switchLayout("ฮีทเตอร์", 0),
-                          _switchLayout("ออกซิเจน", 0),
-                          _switchLayout("Feeder", 0),
-                          _switchLayout("LED", 0)
+                          _switchLayout("ปั้มน้ำเข้า", data["water_pump_in"],
+                              "water_pump_in"),
+                          _switchLayout("ปั้มน้ำออก", data["water_pump_out"],
+                              "water_pump_out"),
+                          _switchLayout("ฮีทเตอร์", data["heater"], "heater"),
+                          _switchLayout("ออกซิเจน", data["o2"], "o2"),
+                          _switchLayout("Feeder", data["feeder"], "feeder"),
+                          _switchLayout("LED", data["led"], "led")
                         ]);
                   } else {
                     return Center(
@@ -184,7 +186,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  Widget _switchLayout(String type, dynamic value) {
+  Widget _switchLayout(String type, dynamic valueCurr, String key) {
+    print(key);
     return Container(
       width: 50,
       height: 20,
@@ -205,10 +208,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         Text(type.toString()),
         Switch(
           // This bool value toggles the switch.
-          value: false,
+          value: valueCurr,
           activeColor: Colors.red,
           onChanged: (bool value) {
             // This is called when the user toggles the switch.
+            final postData = {
+              key: value,
+            };
+            _setSensorRef.update({key: value});
             setState(() {
               // light = value;
             });
