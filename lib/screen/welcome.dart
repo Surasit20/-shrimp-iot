@@ -1,8 +1,11 @@
 import 'dart:collection';
 import 'dart:convert';
-
+import 'dart:developer';
+import 'package:rxdart/rxdart.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_app2/screen/profile.dart';
@@ -33,8 +36,34 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       .ref()
       .child('set_sensor');
 
-  List vaules = [];
-  bool isUpdate = false;
+  final iconMonitor = {
+    "อุณหภูมิ": "assets/icons/Temp.png",
+    "ค่า pH": "assets/icons/ph.png",
+    "ค่าความขุ่น": "assets/icons/water.png",
+    "เวลาให้อาหารล่าสุด": "assets/icons/clock (1).png",
+  };
+
+  int? _setTemperature;
+
+  final _readTemperature = BehaviorSubject<int>();
+  @override
+  void initState() {
+    // TODO: implement initState
+    /*
+    FirebaseMessaging.onMessage.listen(
+      (RemoteMessage message) {
+        debugPrint("onMessage:");
+        log("onMessage: $message");
+        final snackBar =
+            SnackBar(content: Text(message.notification?.title ?? ""));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      },
+    );
+
+    */
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,7 +89,47 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         mainAxisSpacing: 20,
                         padding: EdgeInsets.all(20),
                         children: [
-                          _monitorLayout("อุณหภูมิ", data["temperature"]),
+                          GestureDetector(
+                            onTap: () {
+                              showModalBottomSheet<void>(
+                                backgroundColor: Colors.transparent,
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.vertical(
+                                          top: Radius.circular(40.0)),
+                                      color: Colors.white,
+                                    ),
+                                    height: 400,
+                                    child: StreamBuilder(
+                                        stream: _setSensorRef.onValue,
+                                        builder: (context,
+                                            AsyncSnapshot<DatabaseEvent>
+                                                snapshot) {
+                                          if (snapshot.hasData &&
+                                              !snapshot.hasError) {
+                                            Map<String, dynamic> data =
+                                                jsonDecode(jsonEncode(snapshot!
+                                                    .data!.snapshot!.value));
+
+                                            return _changeTemperature(
+                                                data["temperature"]);
+                                            ;
+                                          } else {
+                                            return Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            );
+                                          }
+                                        }),
+                                  );
+                                },
+                              );
+                            },
+                            child:
+                                _monitorLayout("อุณหภูมิ", data["temperature"]),
+                          ),
                           _monitorLayout("ค่า pH", data["ph"]),
                           _monitorLayout("ค่าความขุ่น", data["nut"]),
                           _monitorLayout(
@@ -68,7 +137,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         ]);
                   } else {
                     return Center(
-                      child: Text("NO DATA YET"),
+                      child: CircularProgressIndicator(),
                     );
                   }
                 }),
@@ -81,6 +150,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     Map<String, dynamic> data =
                         jsonDecode(jsonEncode(snapshot!.data!.snapshot!.value));
 
+                    _readTemperature.add(data["temperature"]);
                     return GridView.count(
                         childAspectRatio: (1 / .3),
                         crossAxisCount: 2,
@@ -99,7 +169,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         ]);
                   } else {
                     return Center(
-                      child: Text("NO DATA YET"),
+                      child: CircularProgressIndicator(),
                     );
                   }
                 }),
@@ -147,7 +217,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     return AlertScreen();
                   }));
                 },
-                icon: Image.asset("assets/images/bell.png"),
+                icon: Image.asset(
+                  "assets/images/bell.png",
+                ),
               ),
               IconButton(
                 onPressed: () {
@@ -169,6 +241,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return Container(
       width: 50,
       height: 70,
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(color: Colors.black),
@@ -182,7 +255,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           ),
         ],
       ),
-      child: Column(children: [Text(type.toString()), Text(value.toString())]),
+      child: Column(children: [
+        Image.asset(
+          iconMonitor[type].toString(),
+          width: 70,
+          height: 70,
+        ),
+        Text(type.toString()),
+        Text(value.toString())
+      ]),
     );
   }
 
@@ -225,8 +306,87 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  void test() {
-    setState(() {});
+  Widget _changeTemperature(dynamic temperature) {
+    return Container(
+      width: 50,
+      height: 20,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.black),
+        borderRadius: BorderRadius.circular(20.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 2,
+            offset: Offset(0, 10), // changes position of shadow
+          ),
+        ],
+      ),
+      child: Expanded(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Center(
+              child: Column(children: [
+                Text("อุณหภูมิ"),
+                IconButton(
+                    onPressed: () {
+                      _setSensorRef.update({"temperature": temperature + 1});
+                    },
+                    icon: Icon(Icons.arrow_drop_up)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [Text(temperature.toString()), Text("C")],
+                ),
+                IconButton(
+                    onPressed: () {
+                      _setSensorRef.update({"temperature": temperature - 1});
+                    },
+                    icon: Icon(Icons.arrow_drop_down)),
+                Container(
+                  padding: EdgeInsets.all(20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      TextButton(
+                        style: flatButtonStyle,
+                        onPressed: () {
+                          print('Button pressed');
+                        },
+                        child: Text('ยกเลิก'),
+                      ),
+                      TextButton(
+                        style: flatButtonStyle,
+                        onPressed: () {
+                          print('Button pressed');
+                        },
+                        child: Text('ยืนยัน'),
+                      )
+                    ],
+                  ),
+                )
+              ]),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  final ButtonStyle flatButtonStyle = TextButton.styleFrom(
+    primary: Colors.white,
+    minimumSize: Size(88, 44),
+    padding: EdgeInsets.symmetric(horizontal: 16.0),
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(2.0)),
+    ),
+    backgroundColor: Colors.blue,
+  );
+  void test(int temperature) {
+    setState(() {
+      _setTemperature = temperature;
+    });
   }
 }
 

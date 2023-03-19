@@ -1,133 +1,91 @@
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app2/screen/profile.dart';
 import 'package:flutter_app2/screen/setting.dart';
 import 'package:flutter_app2/screen/welcome.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class AlertScreen extends StatelessWidget {
+class AlertScreen extends StatefulWidget {
+  @override
+  State<AlertScreen> createState() => _AlertScreenState();
+}
+
+class _AlertScreenState extends State<AlertScreen> {
+  DatabaseReference _readNotification = FirebaseDatabase(
+          databaseURL:
+              "https://mylogin-cb3ce-default-rtdb.asia-southeast1.firebasedatabase.app/")
+      .ref()
+      .child('notification');
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       /*appBar: AppBar(
         title: Text("การแจ้งเตือน"),
       ),*/
-      body: Container(
-        padding: EdgeInsets.fromLTRB(20, 30, 0, 29),
-        width: double.infinity,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              margin: EdgeInsets.fromLTRB(0, 50, 157, 19),
-              child: Text(
-                "การแจ้งเตือน",
-                style: GoogleFonts.inter(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w400,
-                  height: 1.2125,
-                  color: Colors.black,
+      body: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                margin: EdgeInsets.fromLTRB(0, 50, 157, 19),
+                child: Text(
+                  "การแจ้งเตือน",
+                  style: GoogleFonts.inter(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w400,
+                    height: 1.2125,
+                    color: Colors.black,
+                  ),
                 ),
               ),
-            ),
-            Container(
-              margin: EdgeInsets.fromLTRB(13, 0, 0, 13),
-              width: 315,
-              height: 120,
-              child: Stack(
-                children: [
-                  Positioned(
-                    left: 0,
-                    top: 0,
-                    child: Align(
-                      child: SizedBox(
-                        width: 282,
+              SingleChildScrollView(
+                child: Container(
+                  padding: EdgeInsets.all(20),
+                  child: FirebaseAnimatedList(
+                    reverse: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    query: _readNotification,
+                    itemBuilder: (BuildContext context, DataSnapshot snapshot,
+                        Animation<double> animation, int index) {
+                      return Container(
                         height: 120,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Color(0xff000000)),
-                            color: Color(0xffffffff),
-                          ),
-                        ),
-                      ),
-                    ),
+                        width: 150,
+                        padding: EdgeInsets.all(10),
+                        margin: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black)),
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                      "วันที่ ${snapshot.child("date").value.toString()}"),
+                                  Text(
+                                      "เวลา ${snapshot.child("time").value.toString()}"),
+                                ],
+                              ),
+                              Text(
+                                  "อุณหภูมิ: ${snapshot.child("temprature").value.toString()}"),
+                              Text(
+                                  "ค่า pH: ${snapshot.child("ph").value.toString()}"),
+                              Text(
+                                  "ค่าความสะอาดของน้ำ: ${snapshot.child("nut").value.toString()}"),
+                            ]),
+                      );
+                    },
                   ),
-                  Positioned(
-                    left: 18,
-                    top: 12,
-                    child: Align(
-                      child: SizedBox(
-                        width: 282,
-                        height: 19,
-                        child: Text("วันที่  xx/xx/xxxx   เวลา xx:xx น.",
-                        style: GoogleFonts.inter(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w400,
-                          height: 1.2125,
-                          color: Colors.black,
-                        ),
-                       ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    left: 30,
-                    top: 45,
-                    child: Align(
-                      child: SizedBox(
-                        width: 160,
-                        height: 19,
-                        child: Text("อุณหภูมิ :   xx °C ",
-                        style: GoogleFonts.inter(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w400,
-                          height: 1.2125,
-                          color: Colors.black,
-                        ),
-                       ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    left: 30,
-                    top: 68,
-                    child: Align(
-                      child: SizedBox(
-                        width: 103,
-                        height: 19,
-                        child: Text("ค่า  pH :   x.x",
-                        style: GoogleFonts.inter(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w400,
-                          height: 1.2125,
-                          color: Colors.black,
-                        ),
-                       ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    left: 30,
-                    top: 91,
-                    child: Align(
-                      child: SizedBox(
-                        width: 285,
-                        height: 19,
-                        child: Text("ค่าความขุ่นของน้ำ :   x.x    NTU",
-                        style: GoogleFonts.inter(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w400,
-                          height: 1.2125,
-                          color: Colors.black,
-                        ),
-                       ),
-                      ),
-                    ),
-                  ),
-                  
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: SafeArea(

@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app2/screen/alert.dart';
 import 'package:flutter_app2/screen/home.dart';
@@ -5,7 +8,17 @@ import 'package:flutter_app2/screen/setting.dart';
 import 'package:flutter_app2/screen/welcome.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  DatabaseReference _shrimpRef = FirebaseDatabase(
+          databaseURL:
+              "https://mylogin-cb3ce-default-rtdb.asia-southeast1.firebasedatabase.app/")
+      .ref()
+      .child('shrimp');
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,62 +55,79 @@ class ProfileScreen extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
             ),
-            Container(
-              margin: EdgeInsets.fromLTRB(0, 0, 2, 20),
-              child: Text(
-                "สายพันธ์ :  xxxxxxxxxx",
-                style: GoogleFonts.inter(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w400,
-                  height: 1.2125,
-                ),
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
-              child: Text(
-                "กลุ่มสายพันธ์ :  xxxxxxxx",
-                style: GoogleFonts.inter(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w400,
-                  height: 1.2125,
-                ),
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.fromLTRB(0, 0, 0, 51),
-              child: Text(
-                "ขนาดตัวกุ้ง :  xx  นิ้ว",
-                style: GoogleFonts.inter(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w400,
-                  height: 1.2125,
-                ),
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.fromLTRB(30, 0, 32.5, 49),
-              width: double.infinity,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    margin: EdgeInsets.fromLTRB(30, 0, 0, 30),
-                    child: Text(
-                      "ข้อมูลเบื้องต้นสำหรับการเลี้ยงกุ้งเครฟิช",
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                        height: 1.2125,
-                        decoration: TextDecoration.underline,
-                        color: Color(0xffa9a9a9),
-                        decorationColor: Color(0xffa9a9a9),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            StreamBuilder(
+                stream: _shrimpRef.onValue,
+                builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
+                  if (snapshot.hasData && !snapshot.hasError) {
+                    Map<String, dynamic> data =
+                        jsonDecode(jsonEncode(snapshot!.data!.snapshot!.value));
+
+                    return Column(
+                      children: [
+                        Container(
+                          margin: EdgeInsets.fromLTRB(0, 0, 2, 20),
+                          child: Text(
+                            "สายพันธ์ :  ${data["species"]}",
+                            style: GoogleFonts.inter(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w400,
+                              height: 1.2125,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                          child: Text(
+                            "กลุ่มสายพันธ์ :  ${data["species_group"]}",
+                            style: GoogleFonts.inter(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w400,
+                              height: 1.2125,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          margin: EdgeInsets.fromLTRB(0, 0, 0, 51),
+                          child: Text(
+                            "ขนาดตัวกุ้ง :  ${data["size"]}  นิ้ว",
+                            style: GoogleFonts.inter(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w400,
+                              height: 1.2125,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          margin: EdgeInsets.fromLTRB(30, 0, 32.5, 49),
+                          width: double.infinity,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Container(
+                                margin: EdgeInsets.fromLTRB(30, 0, 0, 30),
+                                child: Text(
+                                  "ข้อมูลเบื้องต้นสำหรับการเลี้ยงกุ้งเครฟิช",
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                    height: 1.2125,
+                                    decoration: TextDecoration.underline,
+                                    color: Color(0xffa9a9a9),
+                                    decorationColor: Color(0xffa9a9a9),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  } else {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                }),
           ],
         ),
       ),
