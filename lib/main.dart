@@ -2,7 +2,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app2/screen/home.dart';
+import 'package:flutter_app2/screen/insertData.dart';
+import 'package:flutter_app2/screen/welcome.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 //import 'package:material_color_generator/material_color_generator.dart';
 //import 'package:toast/toast.dart';
@@ -18,6 +21,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   FirebaseMessaging messaging = FirebaseMessaging.instance;
+
   NotificationSettings settings = await messaging.requestPermission(
     alert: true,
     announcement: false,
@@ -34,9 +38,12 @@ void main() async {
   } else {
     print('User declined or has not accepted permission');
   }
+  await FirebaseMessaging.instance.subscribeToTopic('readers-club');
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   runApp(const MyApp());
 }
+
+GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -59,6 +66,8 @@ class MyApp extends StatelessWidget {
             // is not restarted.
             // primarySwatch: generateMaterialColor(color:  Color.fromARGB(255, 13, 13, 13)),
             ),
-        home: HomeScreen());
+        builder: FToastBuilder(),
+        navigatorKey: navigatorKey,
+        home: WelcomeScreen());
   }
 }

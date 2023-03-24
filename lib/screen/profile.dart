@@ -8,6 +8,8 @@ import 'package:flutter_app2/screen/setting.dart';
 import 'package:flutter_app2/screen/welcome.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../widget/bottom_bar.dart';
+
 class ProfileScreen extends StatefulWidget {
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -19,6 +21,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               "https://mylogin-cb3ce-default-rtdb.asia-southeast1.firebasedatabase.app/")
       .ref()
       .child('shrimp');
+
+  BottomBar _bottomBar = BottomBar();
   @override
   Widget build(BuildContext context) {
     return Scaffold(

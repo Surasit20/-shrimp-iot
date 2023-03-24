@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app2/screen/profile.dart';
@@ -27,6 +28,13 @@ const List<String> list = <String>[
   'แอปปิค็อต (C.Holthuisi)',
   'อีเรียน จายา (Sp.Irian Jaya)'
 ];
+String size = "0";
+String? dropdownValue = list.first;
+DatabaseReference _ShrimpRef = FirebaseDatabase(
+        databaseURL:
+            "https://mylogin-cb3ce-default-rtdb.asia-southeast1.firebasedatabase.app/")
+    .ref()
+    .child('shrimp');
 
 class InsertDataScreen extends StatelessWidget {
   const InsertDataScreen({Key? key}) : super(key: key);
@@ -39,106 +47,121 @@ class InsertDataScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text("กรอกข้อมูล"), //child: InsertData(),
       ),
-      body: Center(
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(0, 70, 0, 30),
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Color(0xffffffff),
-          ),
-          child: Column(
-            //crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Center(
-                child: Container(
-                  //margin:  EdgeInsets.fromLTRB(20, 0, 0, 20),
-                  child: Text(
-                    "ข้อมูลกุ้งเครฟิชที่เลี้ยงในระบบ",
-                    style: GoogleFonts.inter(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        height: 1.2,
-                        color: Color(0xff000000)),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 50, 0, 0),
-                child: Container(
-                  child: SizedBox(
-                    width: 128,
-                    height: 128,
-                    child: Image.asset(
-                      "assets/images/crayfishin.png",
-                      fit: BoxFit.cover,
+      body: SingleChildScrollView(
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(0, 70, 0, 30),
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Color(0xffffffff),
+            ),
+            child: Column(
+              //crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Center(
+                  child: Container(
+                    //margin:  EdgeInsets.fromLTRB(20, 0, 0, 20),
+                    child: Text(
+                      "ข้อมูลกุ้งเครฟิชที่เลี้ยงในระบบ",
+                      style: GoogleFonts.inter(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          height: 1.2,
+                          color: Color(0xff000000)),
                     ),
                   ),
                 ),
-              ),
-              Container(
-                margin: const EdgeInsets.fromLTRB(0, 8, 204, 2),
-                child: Text(
-                  "สายพันธุ์",
-                  style: GoogleFonts.inter(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w400,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 50, 0, 0),
+                  child: Container(
+                    child: SizedBox(
+                      width: 128,
+                      height: 128,
+                      child: Image.asset(
+                        "assets/images/crayfishin.png",
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              Container(
-                margin: EdgeInsets.fromLTRB(6, 0, 55, 15),
-                decoration: BoxDecoration(
-                border: Border.all(color: Color(0xcc000000)),
-                color: Color(0xcc000000),
-              ),
-                padding: const EdgeInsets.fromLTRB(20, 2, 17.84, 10),
-                child: InsertData(),
-              ),
-              Container(
-                margin: EdgeInsets.fromLTRB(0, 0, 181, 2),
-                child: Text(
-                  "ขนาดตัวกุ้ง",
-                  style: GoogleFonts.inter(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w400,
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0, 8, 204, 2),
+                  child: Text(
+                    "สายพันธุ์",
+                    style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ),
-              ),
-              Container(
-                margin: EdgeInsets.fromLTRB(0, 0, 47, 4),
-                width: 253,
-                height: 40,
-              ),
-              Container(
-                margin: EdgeInsets.fromLTRB(165, 0, 0, 27),
-                child: Text(
-                  "*โดยประมาณ",
-                  style: GoogleFonts.inter(
-                    fontSize: 8,
-                    fontWeight: FontWeight.w400,
-                    color: Color(0xffb6b6b6),
+                Container(
+                  margin: EdgeInsets.fromLTRB(6, 0, 55, 15),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Color(0xcc000000)),
+                    color: Colors.white,
+                  ),
+                  padding: const EdgeInsets.fromLTRB(20, 2, 17.84, 10),
+                  child: InsertData(),
+                ),
+                Container(
+                  margin: EdgeInsets.fromLTRB(0, 0, 181, 2),
+                  child: Text(
+                    "ขนาดตัวกุ้ง",
+                    style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ),
-              ),
-              Container(
-                margin: EdgeInsets.fromLTRB(86, 0, 133, 0),
-                padding: EdgeInsets.fromLTRB(26, 6, 4, 8),
-                width: double.infinity,
-                child: ElevatedButton(
-                  child: Text("บันทึก",
-                  style: GoogleFonts.inter(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w400,
-                  ),),
-                  onPressed: () {
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) {
-                      return ProfileScreen();
-                    }));
-                  },
+                Container(
+                  margin: EdgeInsets.fromLTRB(0, 0, 47, 4),
+                  width: 253,
+                  height: 40,
+                  child: TextFormField(
+                    keyboardType: TextInputType.number,
+                    onChanged: (value) => size = value,
+                    initialValue: size,
+                  ),
                 ),
-              ),
-            ],
+                Container(
+                  margin: EdgeInsets.fromLTRB(165, 0, 0, 27),
+                  child: Text(
+                    "*โดยประมาณ",
+                    style: GoogleFonts.inter(
+                      fontSize: 8,
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xffb6b6b6),
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.fromLTRB(86, 0, 133, 0),
+                  padding: EdgeInsets.fromLTRB(26, 6, 4, 8),
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    child: Text(
+                      "บันทึก",
+                      style: GoogleFonts.inter(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    onPressed: () {
+                      if (size == 0) {
+                        return;
+                      }
+                      _ShrimpRef.update({"species": dropdownValue});
+                      _ShrimpRef.update({"size": size});
+
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) {
+                        return ProfileScreen();
+                      }));
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -156,8 +179,6 @@ class InsertData extends StatefulWidget {
 }
 
 class _InsertDataState extends State<InsertData> {
-  String? dropdownValue = list.first;
-
   @override
   Widget build(BuildContext context) {
     return DropdownButton<String>(
@@ -168,7 +189,7 @@ class _InsertDataState extends State<InsertData> {
       style: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
       underline: Container(
         height: 2,
-        color: Color.fromARGB(255, 0, 0, 0),
+        color: Colors.white,
       ),
       onChanged: (String? value) => setState(() => dropdownValue = value!),
       items: list.map<DropdownMenuItem<String>>((String value) {

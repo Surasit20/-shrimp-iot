@@ -6,12 +6,15 @@ import 'package:flutter_app2/screen/setting.dart';
 import 'package:flutter_app2/screen/welcome.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../widget/bottom_bar.dart';
+
 class AlertScreen extends StatefulWidget {
   @override
   State<AlertScreen> createState() => _AlertScreenState();
 }
 
 class _AlertScreenState extends State<AlertScreen> {
+  BottomBar _bottomBar = BottomBar();
   DatabaseReference _readNotification = FirebaseDatabase(
           databaseURL:
               "https://mylogin-cb3ce-default-rtdb.asia-southeast1.firebasedatabase.app/")

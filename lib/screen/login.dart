@@ -3,7 +3,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app2/screen/welcome.dart';
 import 'package:form_field_validator/form_field_validator.dart';
+import 'package:toast/toast.dart';
 import '../model/profile.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -13,12 +15,21 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  late FToast fToast;
   final formKey = GlobalKey<FormState>();
   Profile profile = Profile(
     email: '',
     password: '',
   );
   final Future<FirebaseApp> _initialization = Firebase.initializeApp();
+  GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fToast = FToast();
+    // fToast.init(navigatorKey.currentContext!);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,12 +109,26 @@ class _LoginScreenState extends State<LoginScreen> {
                                     } on FirebaseAuthException catch (e) {
                                       //ถ้าผิดพลาดจะมีข้อความ
                                       print(e.message);
-
+                                      Fluttertoast.showToast(
+                                          msg: e.message.toString(),
+                                          //toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.CENTER,
+                                          timeInSecForIosWeb: 1,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0);
                                       //Toast.show("error", duration: Toast.lengthLong,gravity: Toast.bottom);
                                       /*Fluttertoast.showToast(
                                           msg: "${e.message}",
                                           gravity: ToastGravity.CENTER);*/
                                     }
+                                  } else {
+                                    Fluttertoast.showToast(
+                                        msg: "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
+                                        //toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.CENTER,
+                                        timeInSecForIosWeb: 1,
+                                        textColor: Colors.white,
+                                        fontSize: 16.0);
                                   }
                                 },
                               ),
@@ -122,5 +147,25 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           );
         });
+  }
+
+  _showToast() {
+    Widget toast = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25.0),
+        color: Colors.greenAccent,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.check),
+          SizedBox(
+            width: 12.0,
+          ),
+          Text("This is a Custom Toast"),
+        ],
+      ),
+    );
   }
 }

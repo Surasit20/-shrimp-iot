@@ -12,6 +12,7 @@ import 'package:flutter_app2/screen/profile.dart';
 import 'package:flutter_app2/screen/setting.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../model/sensor.dart';
+import '../widget/bottom_bar.dart';
 import 'alert.dart';
 import 'package:firebase_database/firebase_database.dart';
 
@@ -44,8 +45,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   };
 
   int? _setTemperature;
-
+  int _countTemperature = 0;
   final _readTemperature = BehaviorSubject<int>();
+  BottomBar _bottomBar = BottomBar();
   @override
   void initState() {
     // TODO: implement initState
@@ -67,174 +69,169 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //appBar: AppBar(
-      //  title: Text("หน้าแรก"),
-      //),
-      body: SafeArea(
-          child: Column(
-        children: [
-          Text("ตรวจสอบและควมคุมระบบ"),
-          Expanded(
-            flex: 2,
-            child: StreamBuilder(
-                stream: _readSensorRef.onValue,
-                builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
-                  if (snapshot.hasData && !snapshot.hasError) {
-                    Map<String, dynamic> data =
-                        jsonDecode(jsonEncode(snapshot!.data!.snapshot!.value));
+        //appBar: AppBar(
+        //  title: Text("หน้าแรก"),
+        //),
+        body: SafeArea(
+            child: Column(
+          children: [
+            SizedBox(
+              height: 20,
+            ),
+            Text(
+              "ตรวจสอบและควมคุมระบบ",
+              style: TextStyle(
+                fontSize: 20,
+                //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
+                color: Colors.black, //font color
+                //background color
+              ),
+            ),
+            SizedBox(
+              height: 30,
+            ),
+            Expanded(
+              flex: 2,
+              child: StreamBuilder(
+                  stream: _readSensorRef.onValue,
+                  builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
+                    if (snapshot.hasData && !snapshot.hasError) {
+                      Map<String, dynamic> data = jsonDecode(
+                          jsonEncode(snapshot!.data!.snapshot!.value));
 
-                    return GridView.count(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 20,
-                        mainAxisSpacing: 20,
-                        padding: EdgeInsets.all(20),
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              showModalBottomSheet<void>(
-                                backgroundColor: Colors.transparent,
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.vertical(
-                                          top: Radius.circular(40.0)),
-                                      color: Colors.white,
-                                    ),
-                                    height: 400,
-                                    child: StreamBuilder(
-                                        stream: _setSensorRef.onValue,
-                                        builder: (context,
-                                            AsyncSnapshot<DatabaseEvent>
-                                                snapshot) {
-                                          if (snapshot.hasData &&
-                                              !snapshot.hasError) {
-                                            Map<String, dynamic> data =
-                                                jsonDecode(jsonEncode(snapshot!
-                                                    .data!.snapshot!.value));
+                      return GridView.count(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 20,
+                          mainAxisSpacing: 20,
+                          padding: EdgeInsets.all(20),
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                showModalBottomSheet<void>(
+                                  backgroundColor: Colors.transparent,
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.vertical(
+                                            top: Radius.circular(40.0)),
+                                        color: Colors.white,
+                                      ),
+                                      height: 400,
+                                      child: StreamBuilder(
+                                          stream: _setSensorRef.onValue,
+                                          builder: (context,
+                                              AsyncSnapshot<DatabaseEvent>
+                                                  snapshot) {
+                                            if (snapshot.hasData &&
+                                                !snapshot.hasError) {
+                                              Map<String, dynamic> data =
+                                                  jsonDecode(jsonEncode(
+                                                      snapshot!.data!.snapshot!
+                                                          .value));
 
-                                            return _changeTemperature(
-                                                data["temperature"]);
-                                            ;
-                                          } else {
-                                            return Center(
-                                              child:
-                                                  CircularProgressIndicator(),
-                                            );
-                                          }
-                                        }),
+                                              return _changeTemperature(
+                                                  data["temperature"]);
+                                            } else {
+                                              return Center(
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              );
+                                            }
+                                          }),
+                                    );
+                                  },
+                                );
+                              },
+                              child: _monitorLayout(
+                                  "อุณหภูมิ", data["temperature"]),
+                            ),
+                            _monitorLayout("ค่า pH", data["ph"]),
+                            _monitorLayout("ค่าความขุ่น", data["nut"]),
+                            GestureDetector(
+                                onTap: () {
+                                  _show();
+                                  return;
+                                  showModalBottomSheet<void>(
+                                    backgroundColor: Colors.transparent,
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.vertical(
+                                              top: Radius.circular(40.0)),
+                                          color: Colors.white,
+                                        ),
+                                        height: 400,
+                                        child: StreamBuilder(
+                                            stream: _setSensorRef.onValue,
+                                            builder: (context,
+                                                AsyncSnapshot<DatabaseEvent>
+                                                    snapshot) {
+                                              if (snapshot.hasData &&
+                                                  !snapshot.hasError) {
+                                                Map<String, dynamic> data =
+                                                    jsonDecode(jsonEncode(
+                                                        snapshot!.data!
+                                                            .snapshot!.value));
+
+                                                return Container();
+                                              } else {
+                                                return Center(
+                                                  child:
+                                                      CircularProgressIndicator(),
+                                                );
+                                              }
+                                            }),
+                                      );
+                                    },
                                   );
                                 },
-                              );
-                            },
-                            child:
-                                _monitorLayout("อุณหภูมิ", data["temperature"]),
-                          ),
-                          _monitorLayout("ค่า pH", data["ph"]),
-                          _monitorLayout("ค่าความขุ่น", data["nut"]),
-                          _monitorLayout(
-                              "เวลาให้อาหารล่าสุด", data["time_feeder"])
-                        ]);
-                  } else {
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                }),
-          ),
-          Expanded(
-            child: StreamBuilder(
-                stream: _setSensorRef.onValue,
-                builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
-                  if (snapshot.hasData && !snapshot.hasError) {
-                    Map<String, dynamic> data =
-                        jsonDecode(jsonEncode(snapshot!.data!.snapshot!.value));
+                                child: _monitorLayout(
+                                    "เวลาให้อาหารล่าสุด", data["time_feeder"])),
+                          ]);
+                    } else {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                  }),
+            ),
+            Expanded(
+              child: StreamBuilder(
+                  stream: _setSensorRef.onValue,
+                  builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
+                    if (snapshot.hasData && !snapshot.hasError) {
+                      Map<String, dynamic> data = jsonDecode(
+                          jsonEncode(snapshot!.data!.snapshot!.value));
 
-                    _readTemperature.add(data["temperature"]);
-                    return GridView.count(
-                        childAspectRatio: (1 / .3),
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 20,
-                        mainAxisSpacing: 20,
-                        padding: EdgeInsets.all(20),
-                        children: [
-                          _switchLayout("ปั้มน้ำเข้า", data["water_pump_in"],
-                              "water_pump_in"),
-                          _switchLayout("ปั้มน้ำออก", data["water_pump_out"],
-                              "water_pump_out"),
-                          _switchLayout("ฮีทเตอร์", data["heater"], "heater"),
-                          _switchLayout("ออกซิเจน", data["o2"], "o2"),
-                          _switchLayout("Feeder", data["feeder"], "feeder"),
-                          _switchLayout("LED", data["led"], "led")
-                        ]);
-                  } else {
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                }),
-          ),
-        ],
-      )),
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 14),
-          margin: EdgeInsets.symmetric(horizontal: 24),
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(30)),
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                    offset: Offset(0, 4),
-                    blurRadius: 4,
-                    color: Color(0xFFDADADA)..withOpacity(0.15))
-              ]),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              IconButton(
-                onPressed: () {
-                  Navigator.push(context, PageRouteBuilder(pageBuilder:
-                      (BuildContext context, animation, secondaryAnimation) {
-                    return WelcomeScreen();
-                  }));
-                },
-                icon: Image.asset("assets/images/home1.png"),
-              ),
-              IconButton(
-                onPressed: () {
-                  Navigator.push(context, PageRouteBuilder(pageBuilder:
-                      (BuildContext context, animation, secondaryAnimation) {
-                    return ProfileScreen();
-                  }));
-                },
-                icon: Image.asset("assets/images/user.png"),
-              ),
-              IconButton(
-                onPressed: () {
-                  Navigator.push(context, PageRouteBuilder(pageBuilder:
-                      (BuildContext context, animation, secondaryAnimation) {
-                    return AlertScreen();
-                  }));
-                },
-                icon: Image.asset(
-                  "assets/images/bell.png",
-                ),
-              ),
-              IconButton(
-                onPressed: () {
-                  Navigator.push(context, PageRouteBuilder(pageBuilder:
-                      (BuildContext context, animation, secondaryAnimation) {
-                    return SettingScreen();
-                  }));
-                },
-                icon: Image.asset("assets/images/settings.png"),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
+                      _readTemperature.add(data["temperature"]);
+                      return GridView.count(
+                          childAspectRatio: (1 / .3),
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 20,
+                          mainAxisSpacing: 20,
+                          padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
+                          children: [
+                            _switchLayout("ปั้มน้ำเข้า", data["water_pump_in"],
+                                "water_pump_in"),
+                            _switchLayout("ปั้มน้ำออก", data["water_pump_out"],
+                                "water_pump_out"),
+                            _switchLayout("ฮีทเตอร์", data["heater"], "heater"),
+                            _switchLayout("ออกซิเจน", data["o2"], "o2"),
+                            _switchLayout("Feeder", data["feeder"], "feeder"),
+                            _switchLayout("LED", data["led"], "led")
+                          ]);
+                    } else {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                  }),
+            ),
+          ],
+        )),
+        bottomNavigationBar: _bottomBar.bottonBar(context));
   }
 
   Widget _monitorLayout(String type, dynamic value) {
@@ -244,14 +241,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(color: Colors.black),
+        border: Border.all(color: Colors.grey),
         borderRadius: BorderRadius.circular(20.0),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.5),
             spreadRadius: 2,
-            blurRadius: 2,
-            offset: Offset(0, 10), // changes position of shadow
+            blurRadius: 4,
+            offset: Offset(0, 4), // changes position of shadow
           ),
         ],
       ),
@@ -268,14 +265,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Widget _switchLayout(String type, dynamic valueCurr, String key) {
-    print(key);
     return Container(
+      padding: EdgeInsets.all(10),
       width: 50,
       height: 20,
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(color: Colors.black),
         borderRadius: BorderRadius.circular(20.0),
+        /*
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.5),
@@ -284,13 +282,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             offset: Offset(0, 10), // changes position of shadow
           ),
         ],
+        */
       ),
-      child: Row(children: [
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Text(type.toString()),
         Switch(
           // This bool value toggles the switch.
           value: valueCurr,
-          activeColor: Colors.red,
+          activeColor: Colors.green,
           onChanged: (bool value) {
             // This is called when the user toggles the switch.
             final postData = {
@@ -323,53 +322,101 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           ),
         ],
       ),
-      child: Expanded(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Center(
-              child: Column(children: [
-                Text("อุณหภูมิ"),
-                IconButton(
-                    onPressed: () {
-                      _setSensorRef.update({"temperature": temperature + 1});
-                    },
-                    icon: Icon(Icons.arrow_drop_up)),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Text(temperature.toString()), Text("C")],
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Center(
+            child: Column(children: [
+              Text(
+                "อุณหภูมิ",
+                style: TextStyle(
+                  fontSize: 18,
+                  //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
+                  color: Colors.black, //font color
+                  //background color
                 ),
-                IconButton(
-                    onPressed: () {
-                      _setSensorRef.update({"temperature": temperature - 1});
-                    },
-                    icon: Icon(Icons.arrow_drop_down)),
-                Container(
-                  padding: EdgeInsets.all(20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      TextButton(
-                        style: flatButtonStyle,
+              ),
+              IconButton(
+                  onPressed: () {
+                    _setSensorRef.update({"temperature": temperature + 1});
+                    _countTemperature += 1;
+                  },
+                  icon: Icon(Icons.arrow_drop_up)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [Text(temperature.toString()), Text("C")],
+              ),
+              IconButton(
+                  onPressed: () {
+                    _setSensorRef.update({"temperature": temperature - 1});
+                    _countTemperature -= 1;
+                  },
+                  icon: Icon(Icons.arrow_drop_down)),
+              Container(
+                padding: EdgeInsets.all(20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Container(
+                      width: 120,
+                      child: TextButton(
+                        style: ButtonStyle(
+                            shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18.0),
+                                    side: BorderSide(color: Colors.black)))),
                         onPressed: () {
-                          print('Button pressed');
+                          print(_countTemperature.toString());
+                          _setSensorRef.update(
+                              {"temperature": temperature - _countTemperature});
+                          _countTemperature = 0;
+                          Navigator.pop(context);
                         },
-                        child: Text('ยกเลิก'),
+                        child: Text(
+                          'ยกเลิก',
+                          style: TextStyle(
+                            fontSize: 18,
+                            //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
+                            color: Colors.black, //font color
+                            //background color
+                          ),
+                        ),
                       ),
-                      TextButton(
-                        style: flatButtonStyle,
+                    ),
+                    Container(
+                      width: 120,
+                      child: TextButton(
+                        style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all(Colors.black),
+                            shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18.0),
+                                    side: BorderSide(color: Colors.black)))),
                         onPressed: () {
                           print('Button pressed');
+                          _countTemperature = 0;
+                          Navigator.pop(context);
                         },
-                        child: Text('ยืนยัน'),
-                      )
-                    ],
-                  ),
-                )
-              ]),
-            )
-          ],
-        ),
+                        child: Text(
+                          'ยืนยัน',
+                          style: TextStyle(
+                            fontSize: 18,
+                            //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
+                            color: Colors.white, //font color
+                            //background color
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              )
+            ]),
+          )
+        ],
       ),
     );
   }
@@ -388,12 +435,25 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       _setTemperature = temperature;
     });
   }
+
+  Future<void> _show() async {
+    final TimeOfDay? result = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+        cancelText: "ยกเลิก",
+        confirmText: "ตกลง",
+        helpText: "เลือกเวลาให้อาหาร",
+        builder: (context, child) {
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+            child: child ?? Container(),
+          );
+        });
+    // print(_selectedTime);
+    if (result != null) {
+      _setSensorRef.update({"time_feeder": (result.hour * 60) + result.minute});
+      final time = "${result.hour}:${result.minute}";
+      // _setNotification.update({"time_notification": time});
+    }
+  }
 }
-
-/*
-  _monitorLayout("อุณหภูมิ", vaules[0]),
-                        _monitorLayout("ค่า pH", vaules[1]),
-                        _monitorLayout("ค่าความขุ่น", vaules[2]),
-                        _monitorLayout("เวลาให้อาหารล่าสุด", vaules[3])
-
-                        */
