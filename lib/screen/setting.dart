@@ -146,7 +146,9 @@ class _SettingScreenState extends State<SettingScreen> {
                                   fontSize: 16,
                                   fontWeight: FontWeight.w400,
                                   height: 1.2125,
-                                  color: Color(0xffa9a9a9)),
+                                  color: data["isNotification"]
+                                      ? Colors.black
+                                      : Color(0xffa9a9a9)),
                             ),
                           ),
                         ),

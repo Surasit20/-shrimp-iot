@@ -46,6 +46,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   int? _setTemperature;
   int _countTemperature = 0;
+  int _hour = 0, _minute = 0;
   final _readTemperature = BehaviorSubject<int>();
   BottomBar _bottomBar = BottomBar();
   @override
@@ -150,8 +151,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             _monitorLayout("ค่าความขุ่น", data["nut"]),
                             GestureDetector(
                                 onTap: () {
-                                  _show();
-                                  return;
                                   showModalBottomSheet<void>(
                                     backgroundColor: Colors.transparent,
                                     context: context,
@@ -175,7 +174,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                                         snapshot!.data!
                                                             .snapshot!.value));
 
-                                                return Container();
+                                                return _changeTimeFeeder(
+                                                    data["time_feeder"]);
                                               } else {
                                                 return Center(
                                                   child:
@@ -421,6 +421,194 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
+  Widget _changeTimeFeeder(dynamic time) {
+    return Container(
+      width: 50,
+      height: 20,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.black),
+        borderRadius: BorderRadius.circular(20.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 2,
+            offset: Offset(0, 10), // changes position of shadow
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Center(
+            child: Column(children: [
+              Text(
+                "เวลาให้อาหารล่าสุด",
+                style: TextStyle(
+                  fontSize: 18,
+                  //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
+                  color: Colors.black, //font color
+                  //background color
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  //ชั่วโมง
+                  Container(
+                    child: Column(children: [
+                      IconButton(
+                          onPressed: () {
+                            _setSensorRef.update({"time_feeder": time + 60});
+                            _hour += 1;
+                          },
+                          icon: Icon(Icons.arrow_drop_up)),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            (time / 60).floor().toString(),
+                            style: TextStyle(
+                              fontSize: 25,
+                              //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
+                              color: Colors.black, //font color
+                              //background color
+                            ),
+                          )
+                        ],
+                      ),
+                      IconButton(
+                          onPressed: () {
+                            _setSensorRef.update({"time_feeder": time - 60});
+                            _hour -= 60;
+                          },
+                          icon: Icon(Icons.arrow_drop_down)),
+                    ]),
+                  ),
+                  Text(
+                    ":",
+                    style: TextStyle(
+                      fontSize: 30,
+                      //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
+                      color: Colors.black, //font color
+                      //background color
+                    ),
+                  ),
+                  //นาที
+                  Container(
+                    child: Column(children: [
+                      IconButton(
+                          onPressed: () {
+                            _setSensorRef.update({"time_feeder": time + 1});
+                            _minute += 1;
+                          },
+                          icon: Icon(Icons.arrow_drop_up)),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          time < 60
+                              ? Text(
+                                  time.toString(),
+                                  style: TextStyle(
+                                    fontSize: 25,
+                                    //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
+                                    color: Colors.black, //font color
+                                    //background color
+                                  ),
+                                )
+                              : Text(
+                                  (time % ((time / 60).floor() * 60))
+                                      .toString(),
+                                  style: TextStyle(
+                                    fontSize: 25,
+                                    //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
+                                    color: Colors.black, //font color
+                                    //background color
+                                  ),
+                                )
+                        ],
+                      ),
+                      IconButton(
+                          onPressed: () {
+                            _setSensorRef.update({"time_feeder": time - 1});
+                            _minute -= 1;
+                          },
+                          icon: Icon(Icons.arrow_drop_down)),
+                    ]),
+                  ),
+                ],
+              ),
+              Container(
+                padding: EdgeInsets.all(20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Container(
+                      width: 120,
+                      child: TextButton(
+                        style: ButtonStyle(
+                            shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18.0),
+                                    side: BorderSide(color: Colors.black)))),
+                        onPressed: () {
+                          print(_countTemperature.toString());
+                          _setSensorRef.update(
+                              {"time_feeder": time - (_hour + _minute)});
+                          _hour = 0;
+                          _minute = 0;
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          'ยกเลิก',
+                          style: TextStyle(
+                            fontSize: 18,
+                            //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
+                            color: Colors.black, //font color
+                            //background color
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: 120,
+                      child: TextButton(
+                        style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all(Colors.black),
+                            shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18.0),
+                                    side: BorderSide(color: Colors.black)))),
+                        onPressed: () {
+                          print('Button pressed');
+                          _countTemperature = 0;
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          'ยืนยัน',
+                          style: TextStyle(
+                            fontSize: 18,
+                            //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
+                            color: Colors.white, //font color
+                            //background color
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              )
+            ]),
+          )
+        ],
+      ),
+    );
+  }
+
   final ButtonStyle flatButtonStyle = TextButton.styleFrom(
     primary: Colors.white,
     minimumSize: Size(88, 44),
@@ -434,26 +622,5 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     setState(() {
       _setTemperature = temperature;
     });
-  }
-
-  Future<void> _show() async {
-    final TimeOfDay? result = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-        cancelText: "ยกเลิก",
-        confirmText: "ตกลง",
-        helpText: "เลือกเวลาให้อาหาร",
-        builder: (context, child) {
-          return MediaQuery(
-            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-            child: child ?? Container(),
-          );
-        });
-    // print(_selectedTime);
-    if (result != null) {
-      _setSensorRef.update({"time_feeder": (result.hour * 60) + result.minute});
-      final time = "${result.hour}:${result.minute}";
-      // _setNotification.update({"time_notification": time});
-    }
   }
 }
