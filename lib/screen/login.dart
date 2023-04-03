@@ -100,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                               password: profile.password)
                                           .then((value) {
                                         formKey.currentState!.reset();
-                                        Navigator.pushReplacement(context,
+                                        Navigator.push(context,
                                             MaterialPageRoute(
                                                 builder: (context) {
                                           return WelcomeScreen();
@@ -140,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             );
           }
-          ;
+
           return Scaffold(
             body: Center(
               child: CircularProgressIndicator(), //หน้าดาวน์โหลด

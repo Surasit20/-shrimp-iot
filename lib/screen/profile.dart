@@ -2,8 +2,11 @@ import 'dart:convert';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app2/screen/InfoData/cherax.dart';
+import 'package:flutter_app2/screen/InfoData/procambarus.dart';
 import 'package:flutter_app2/screen/alert.dart';
 import 'package:flutter_app2/screen/home.dart';
+import 'package:flutter_app2/screen/info.dart';
 import 'package:flutter_app2/screen/setting.dart';
 import 'package:flutter_app2/screen/welcome.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -28,6 +31,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text("หน้าโปรไฟล์"),
+        automaticallyImplyLeading: false,
       ),
       body: Container(
         padding: const EdgeInsets.fromLTRB(0, 70, 0, 30),
@@ -65,7 +69,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   if (snapshot.hasData && !snapshot.hasError) {
                     Map<String, dynamic> data =
                         jsonDecode(jsonEncode(snapshot!.data!.snapshot!.value));
-
+                    //  print(data["species"]);
                     return Column(
                       children: [
                         Container(
@@ -82,7 +86,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Container(
                           margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
                           child: Text(
-                            "กลุ่มสายพันธ์ :  ${data["species_group"]}",
+                            "กลุ่มสายพันธ์ :  ${Info.clan["เดสทรัคเตอร์ (Destructor)"]}",
                             style: GoogleFonts.inter(
                               fontSize: 18,
                               fontWeight: FontWeight.w400,
@@ -107,17 +111,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Container(
-                                margin: EdgeInsets.fromLTRB(30, 0, 0, 30),
-                                child: Text(
-                                  "ข้อมูลเบื้องต้นสำหรับการเลี้ยงกุ้งเครฟิช",
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w400,
-                                    height: 1.2125,
-                                    decoration: TextDecoration.underline,
-                                    color: Color(0xffa9a9a9),
-                                    decorationColor: Color(0xffa9a9a9),
+                              GestureDetector(
+                                onTap: () {
+                                  showDialog<String>(
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        AlertDialog(
+                                      title: const Text('สายพันธุ์กุ้งเครฟิช'),
+                                      content: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          TextButton(
+                                              onPressed: () => {
+                                                    Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                const Cherax()))
+                                                  },
+                                              child: Text("C (Cherax)")),
+                                          TextButton(
+                                              onPressed: () => Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          const Procambarus())),
+                                              child: Text("P (Procambarus)"))
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.fromLTRB(30, 0, 0, 30),
+                                  child: Text(
+                                    "ข้อมูลเบื้องต้นสำหรับการเลี้ยงกุ้งเครฟิช",
+                                    style: GoogleFonts.inter(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                      height: 1.2125,
+                                      decoration: TextDecoration.underline,
+                                      color: Color(0xffa9a9a9),
+                                      decorationColor: Color(0xffa9a9a9),
+                                    ),
                                   ),
                                 ),
                               ),

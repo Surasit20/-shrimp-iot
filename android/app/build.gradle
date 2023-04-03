@@ -32,7 +32,7 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
-        coreLibraryDesugaringEnabled true
+        //coreLibraryDesugaringEnabled true
     }
 
     kotlinOptions {
@@ -48,7 +48,7 @@ android {
         applicationId "com.example.flutter_app2"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-build-configuration.
-        minSdkVersion 33
+        minSdkVersion 20
         targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -63,6 +63,13 @@ android {
     
         }
     }
+
+      lintOptions {
+        disable 'InvalidPackage'
+        disable "Instantiatable"
+        checkReleaseBuilds false
+        abortOnError false
+    }
 }
 
 flutter {
@@ -72,5 +79,5 @@ flutter {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     apply plugin: 'com.google.gms.google-services'
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+    //coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 }

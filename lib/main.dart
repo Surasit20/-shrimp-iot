@@ -68,6 +68,6 @@ class MyApp extends StatelessWidget {
             ),
         builder: FToastBuilder(),
         navigatorKey: navigatorKey,
-        home: WelcomeScreen());
+        home: HomeScreen());
   }
 }

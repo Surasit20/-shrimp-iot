@@ -21,18 +21,18 @@ class HomeScreen extends StatelessWidget {
                 "แอพพลิเคชั่นสำหรับ",
                 style: GoogleFonts.inter(
                   fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                      height: 1.5,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  height: 1.5,
                 ),
               ),
               Text(
                 "การควบคุมระบบของตู้เลี้ยงกุ้งเครฟิช",
                 style: GoogleFonts.inter(
                   fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                      height: 1.5,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  height: 1.5,
                 ),
               ),
               Image.asset("assets/images/crayfish.png"),
@@ -40,9 +40,10 @@ class HomeScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   icon: Icon(Icons.add),
-                  label: Text("สร้างบัญชี", style: GoogleFonts.inter(fontSize: 20)),
+                  label: Text("สร้างบัญชี",
+                      style: GoogleFonts.inter(fontSize: 20)),
                   onPressed: () {
-                    Navigator.pushReplacement(context,
+                    Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
                       return RegisterScreen();
                     }));
@@ -53,9 +54,10 @@ class HomeScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   icon: Icon(Icons.login),
-                  label: Text("เข้าสู่ระบบ", style: GoogleFonts.inter(fontSize: 20)),
+                  label: Text("เข้าสู่ระบบ",
+                      style: GoogleFonts.inter(fontSize: 20)),
                   onPressed: () {
-                    Navigator.pushReplacement(context,
+                    Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
                       return LoginScreen();
                     }));

@@ -1,0 +1,25 @@
+class Info {
+  static Map<String, String> clan = {
+    "เดสทรัคเตอร์ (Destructor)": "C (Cherax)",
+    "บลูเพิร์ล (Albidus)": "C (Cherax)",
+    "ก้ามแดง (Quadricarinatis)": "C (Cherax)",
+    "ไตรคัลเลอร์ (SP. Tri – Color)": "C (Cherax)",
+    "นิวเรด (Sp. Red Brick ( New Red )": "C (Cherax)",
+    "ออเร้นเทล เพอเพิล (Orange Tail)": "C (Cherax)",
+    "ม้าลาย (Peknyi)": "C (Cherax)",
+    "บลูมูน (Sp. Blue Moon)": "C (Cherax)",
+    "แอปปิค็อต (Holthuisi)": "C (Cherax)",
+    "อีเรียน จายา (Sp. Irian Jaya)": "C (Cherax)",
+    "โกสต์ (Clarkll ghost)": "P (Procambarus)",
+    "เคลีย (Clarkll clear)": "P (Procambarus)",
+    "โกสต์ส้ม (Clarkll orange ghost)": "P (Procambarus)",
+    "ไบค์ออเร้น (P.Bright Orange)": "P (Procambarus)",
+    "เรดเจเปน (Red Japan)": "P (Procambarus)",
+    "สโนว์ไวท์ (Snow white)": "P (Procambarus)",
+    "อัลเลนี่ (Alleni)": "P (Procambarus)",
+    "มาโมเครบส์ (Marmorkrebs)": "P (Procambarus)",
+    "อีโน (Enoplosternum)": "P (Procambarus)",
+    "Versutus": "P (Procambarus)",
+    "Vasquezae": "P (Procambarus)",
+  };
+}

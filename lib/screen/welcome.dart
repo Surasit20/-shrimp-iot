@@ -49,6 +49,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   int _hour = 0, _minute = 0;
   final _readTemperature = BehaviorSubject<int>();
   BottomBar _bottomBar = BottomBar();
+
+  bool _input = false;
+  bool _output = false;
   @override
   void initState() {
     // TODO: implement initState
@@ -73,11 +76,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         //appBar: AppBar(
         //  title: Text("หน้าแรก"),
         //),
+
         body: SafeArea(
             child: Column(
           children: [
             SizedBox(
-              height: 20,
+              height: 5,
             ),
             Text(
               "ตรวจสอบและควมคุมระบบ",
@@ -90,10 +94,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
             ),
             SizedBox(
-              height: 30,
+              height: 10,
             ),
             Expanded(
-              flex: 2,
+              flex: 3,
               child: StreamBuilder(
                   stream: _readSensorRef.onValue,
                   builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
@@ -211,12 +215,29 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   }),
             ),
             Expanded(
+              flex: 2,
               child: StreamBuilder(
                   stream: _setSensorRef.onValue,
                   builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
                     if (snapshot.hasData && !snapshot.hasError) {
                       Map<String, dynamic> data = jsonDecode(
                           jsonEncode(snapshot!.data!.snapshot!.value));
+
+                      if (_input != data["water_pump_in"]) {
+                        if (data["water_pump_in"] == true &&
+                            data["water_pump_out"] == true) {
+                          data["water_pump_in"] = false;
+                        }
+                      }
+                      if (_output != data["water_pump_out"]) {
+                        if (data["water_pump_in"] == true &&
+                            data["water_pump_out"] == true) {
+                          data["water_pump_in"] = false;
+                        }
+                      }
+
+                      _input = data["water_pump_in"];
+                      _output = data["water_pump_out"];
 
                       _readTemperature.add(data["temperature"]);
                       return GridView.count(
@@ -233,7 +254,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             _switchLayout("ฮีทเตอร์", data["heater"], "heater"),
                             _switchLayout("ออกซิเจน", data["o2"], "o2"),
                             _switchLayout("Feeder", data["feeder"], "feeder"),
-                            _switchLayout("LED", data["led"], "led")
+                            _switchLayout("LED", data["led"], "led"),
+                            _switchLayout(
+                                "กรองน้ำ", data["water_filter"], "water_filter")
                           ]);
                     } else {
                       return Center(
@@ -287,7 +310,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
             ),
             Text(
-              " ${type == "อุณหภูมิ" ? "C" : type == "ค่าความขุ่น" ? "NUT" : type == "เวลาให้อาหารล่าสุด" ? "น." : ""}",
+              " ${type == "อุณหภูมิ" ? "C" : type == "ค่าความขุ่น" ? "NTU" : type == "เวลาให้อาหารล่าสุด" ? "น." : ""}",
               style: TextStyle(
                 fontSize: 20,
                 //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
