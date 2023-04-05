@@ -41,7 +41,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     "อุณหภูมิ": "assets/icons/Temp.png",
     "ค่า pH": "assets/icons/ph.png",
     "ค่าความขุ่น": "assets/icons/water.png",
-    "เวลาให้อาหารล่าสุด": "assets/icons/clock (1).png",
+    "ให้อาหารทุกๆ": "assets/icons/clock (1).png",
   };
 
   int? _setTemperature;
@@ -105,8 +105,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       Map<String, dynamic> data = jsonDecode(
                           jsonEncode(snapshot!.data!.snapshot!.value));
 
-                      if (data["time_feeder"] >= 1440 ||
-                          data["time_feeder"] < 0) {
+                      if (data["time_feeder"] > 24 || data["time_feeder"] < 0) {
                         _readSensorRef.update({"time_feeder": 0});
                       }
 /*
@@ -164,7 +163,45 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               child: _monitorLayout(
                                   "อุณหภูมิ", data["temperature"]),
                             ),
-                            _monitorLayout("ค่า pH", data["ph"]),
+                            GestureDetector(
+                              onTap: () {
+                                showModalBottomSheet<void>(
+                                  backgroundColor: Colors.transparent,
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.vertical(
+                                            top: Radius.circular(40.0)),
+                                        color: Colors.white,
+                                      ),
+                                      height: 400,
+                                      child: StreamBuilder(
+                                          stream: _readSensorRef.onValue,
+                                          builder: (context,
+                                              AsyncSnapshot<DatabaseEvent>
+                                                  snapshot) {
+                                            if (snapshot.hasData &&
+                                                !snapshot.hasError) {
+                                              Map<String, dynamic> data =
+                                                  jsonDecode(jsonEncode(
+                                                      snapshot!.data!.snapshot!
+                                                          .value));
+
+                                              return _changePh(data["ph"]);
+                                            } else {
+                                              return Center(
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              );
+                                            }
+                                          }),
+                                    );
+                                  },
+                                );
+                              },
+                              child: _monitorLayout("ค่า pH", data["ph"]),
+                            ),
                             _monitorLayout("ค่าความขุ่น", data["nut"]),
                             GestureDetector(
                                 onTap: () {
@@ -204,8 +241,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                     },
                                   );
                                 },
-                                child: _monitorLayout("เวลาให้อาหารล่าสุด",
-                                    "${(data["time_feeder"] / 60).floor().toString().padLeft(2, '0')} : ${data["time_feeder"] < 60 ? data["time_feeder"].toString().padLeft(2, '0') : (data["time_feeder"] % ((data["time_feeder"] / 60).floor() * 60)).toString().padLeft(2, '0')}")),
+                                child: _monitorLayout("ให้อาหารทุกๆ",
+                                    "${data["time_feeder"].toString()}")),
                           ]);
                     } else {
                       return Center(
@@ -310,7 +347,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
             ),
             Text(
-              " ${type == "อุณหภูมิ" ? "C" : type == "ค่าความขุ่น" ? "NTU" : type == "เวลาให้อาหารล่าสุด" ? "น." : ""}",
+              " ${type == "อุณหภูมิ" ? "C" : type == "ค่าความขุ่น" ? "NTU" : type == "ให้อาหารทุกๆ" ? "ชั่วโมง" : ""}",
               style: TextStyle(
                 fontSize: 20,
                 //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
@@ -361,6 +398,148 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           },
         )
       ]),
+    );
+  }
+
+  Widget _changePh(dynamic ph) {
+    return Container(
+      width: 50,
+      height: 20,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.black),
+        borderRadius: BorderRadius.circular(20.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 2,
+            offset: Offset(0, 10), // changes position of shadow
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Center(
+            child: Column(children: [
+              Text(
+                "กำหนดค่า Ph",
+                style: TextStyle(
+                  fontSize: 18,
+                  //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
+                  color: Colors.black, //font color
+                  //background color
+                ),
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      decoration: const InputDecoration(
+                        hintText: 'กำหนดค่าต่ำสุด',
+                        labelText: 'กำหนดค่าต่ำสุด',
+                      ),
+                      onSaved: (String? value) {
+                        // This optional block of code can be used to run
+                        // code when the user saves the form.
+                      },
+                      validator: (String? value) {
+                        return (value != null && value.contains('@'))
+                            ? 'Do not use the @ char.'
+                            : null;
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      decoration: const InputDecoration(
+                        hintText: 'กำหนดค่าสูงสุด',
+                        labelText: 'กำหนดค่าสูงสุด',
+                      ),
+                      onSaved: (String? value) {
+                        // This optional block of code can be used to run
+                        // code when the user saves the form.
+                      },
+                      validator: (String? value) {
+                        return (value != null && value.contains('@'))
+                            ? 'Do not use the @ char.'
+                            : null;
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: EdgeInsets.all(20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Container(
+                      width: 120,
+                      child: TextButton(
+                        style: ButtonStyle(
+                            shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18.0),
+                                    side: BorderSide(color: Colors.black)))),
+                        onPressed: () {
+                          print(_countTemperature.toString());
+                          _setSensorRef
+                              .update({"temperature": ph - _countTemperature});
+                          _countTemperature = 0;
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          'ยกเลิก',
+                          style: TextStyle(
+                            fontSize: 18,
+                            //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
+                            color: Colors.black, //font color
+                            //background color
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: 120,
+                      child: TextButton(
+                        style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all(Colors.black),
+                            shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18.0),
+                                    side: BorderSide(color: Colors.black)))),
+                        onPressed: () {
+                          print('Button pressed');
+                          _countTemperature = 0;
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          'ยืนยัน',
+                          style: TextStyle(
+                            fontSize: 18,
+                            //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
+                            color: Colors.white, //font color
+                            //background color
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              )
+            ]),
+          )
+        ],
+      ),
     );
   }
 
@@ -521,15 +700,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     child: Column(children: [
                       IconButton(
                           onPressed: () {
-                            _readSensorRef.update({"time_feeder": time + 60});
-                            _hour += 1;
+                            _readSensorRef.update({"time_feeder": time + 2});
+                            _hour += 2;
                           },
                           icon: Icon(Icons.arrow_drop_up)),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            (time / 60).floor().toString().padLeft(2, '0'),
+                            (time.toString()),
                             style: TextStyle(
                               fontSize: 25,
                               //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
@@ -541,60 +720,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       ),
                       IconButton(
                           onPressed: () {
-                            _readSensorRef.update({"time_feeder": time - 60});
-                            _hour -= 60;
-                          },
-                          icon: Icon(Icons.arrow_drop_down)),
-                    ]),
-                  ),
-                  Text(
-                    ":",
-                    style: TextStyle(
-                      fontSize: 30,
-                      //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
-                      color: Colors.black, //font color
-                      //background color
-                    ),
-                  ),
-                  //นาที
-                  Container(
-                    child: Column(children: [
-                      IconButton(
-                          onPressed: () {
-                            _readSensorRef.update({"time_feeder": time + 1});
-                            _minute += 1;
-                          },
-                          icon: Icon(Icons.arrow_drop_up)),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          time < 60
-                              ? Text(
-                                  time.toString().padLeft(2, '0'),
-                                  style: TextStyle(
-                                    fontSize: 25,
-                                    //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
-                                    color: Colors.black, //font color
-                                    //background color
-                                  ),
-                                )
-                              : Text(
-                                  (time % ((time / 60).floor() * 60))
-                                      .toString()
-                                      .padLeft(2, '0'),
-                                  style: TextStyle(
-                                    fontSize: 25,
-                                    //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
-                                    color: Colors.black, //font color
-                                    //background color
-                                  ),
-                                )
-                        ],
-                      ),
-                      IconButton(
-                          onPressed: () {
-                            _readSensorRef.update({"time_feeder": time - 1});
-                            _minute -= 1;
+                            _readSensorRef.update({"time_feeder": time - 2});
+                            _hour -= 2;
                           },
                           icon: Icon(Icons.arrow_drop_down)),
                     ]),
