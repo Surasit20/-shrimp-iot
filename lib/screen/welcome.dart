@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:developer';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -52,6 +53,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   bool _input = false;
   bool _output = false;
+  String minPh = "";
+  String maxPh = "";
+  String minNtu = "";
+  String maxNtu = "";
   @override
   void initState() {
     // TODO: implement initState
@@ -177,7 +182,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                       ),
                                       height: 400,
                                       child: StreamBuilder(
-                                          stream: _readSensorRef.onValue,
+                                          stream: _setSensorRef.onValue,
                                           builder: (context,
                                               AsyncSnapshot<DatabaseEvent>
                                                   snapshot) {
@@ -188,7 +193,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                                       snapshot!.data!.snapshot!
                                                           .value));
 
-                                              return _changePh(data["ph"]);
+                                              return _changePh(data["set_ph"]);
                                             } else {
                                               return Center(
                                                 child:
@@ -202,7 +207,45 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               },
                               child: _monitorLayout("ค่า pH", data["ph"]),
                             ),
-                            _monitorLayout("ค่าความขุ่น", data["nut"]),
+                            GestureDetector(
+                              onTap: () {
+                                showModalBottomSheet<void>(
+                                  backgroundColor: Colors.transparent,
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.vertical(
+                                            top: Radius.circular(40.0)),
+                                        color: Colors.white,
+                                      ),
+                                      height: 400,
+                                      child: StreamBuilder(
+                                          stream: _setSensorRef.onValue,
+                                          builder: (context,
+                                              AsyncSnapshot<DatabaseEvent>
+                                                  snapshot) {
+                                            if (snapshot.hasData &&
+                                                !snapshot.hasError) {
+                                              Map<String, dynamic> data =
+                                                  jsonDecode(jsonEncode(
+                                                      snapshot!.data!.snapshot!
+                                                          .value));
+
+                                              return _changePh(data["set_ph"]);
+                                            } else {
+                                              return Center(
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              );
+                                            }
+                                          }),
+                                    );
+                                  },
+                                );
+                              },
+                              child: _monitorLayout("ค่าความขุ่น", data["nut"]),
+                            ),
                             GestureDetector(
                                 onTap: () {
                                   showModalBottomSheet<void>(
@@ -259,22 +302,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     if (snapshot.hasData && !snapshot.hasError) {
                       Map<String, dynamic> data = jsonDecode(
                           jsonEncode(snapshot!.data!.snapshot!.value));
-
-                      if (_input != data["water_pump_in"]) {
-                        if (data["water_pump_in"] == true &&
-                            data["water_pump_out"] == true) {
-                          data["water_pump_in"] = false;
-                        }
-                      }
-                      if (_output != data["water_pump_out"]) {
-                        if (data["water_pump_in"] == true &&
-                            data["water_pump_out"] == true) {
-                          data["water_pump_in"] = false;
-                        }
-                      }
-
-                      _input = data["water_pump_in"];
-                      _output = data["water_pump_out"];
 
                       _readTemperature.add(data["temperature"]);
                       return GridView.count(
@@ -401,6 +428,171 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
+  Widget _changeNtu(dynamic ntu) {
+    return Container(
+      width: 50,
+      height: 20,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.black),
+        borderRadius: BorderRadius.circular(20.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 2,
+            offset: Offset(0, 10), // changes position of shadow
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Center(
+            child: Column(children: [
+              Text(
+                "กำหนดค่า NTU",
+                style: TextStyle(
+                  fontSize: 18,
+                  //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
+                  color: Colors.black, //font color
+                  //background color
+                ),
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      onChanged: (value) => minNtu = value,
+                      initialValue: ntu["min_ntu"].toString(),
+                      decoration: const InputDecoration(
+                        hintText: 'กำหนดค่าต่ำสุด',
+                        labelText: 'กำหนดค่าต่ำสุด',
+                      ),
+                      onSaved: (String? value) {
+                        // This optional block of code can be used to run
+                        // code when the user saves the form.
+                      },
+                      validator: (String? value) {
+                        return (value != null && value.contains('@'))
+                            ? 'Do not use the @ char.'
+                            : null;
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      onChanged: (value) => maxNtu = value,
+                      initialValue: ntu["max_ntu"].toString(),
+                      decoration: const InputDecoration(
+                        hintText: 'กำหนดค่าสูงสุด',
+                        labelText: 'กำหนดค่าสูงสุด',
+                      ),
+                      onSaved: (String? value) {
+                        // This optional block of code can be used to run
+                        // code when the user saves the form.
+                      },
+                      validator: (String? value) {
+                        return (value != null && value.contains('@'))
+                            ? 'Do not use the @ char.'
+                            : null;
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: EdgeInsets.all(20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Container(
+                      width: 120,
+                      child: TextButton(
+                        style: ButtonStyle(
+                            shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18.0),
+                                    side: BorderSide(color: Colors.black)))),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          'ยกเลิก',
+                          style: TextStyle(
+                            fontSize: 18,
+                            //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
+                            color: Colors.black, //font color
+                            //background color
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: 120,
+                      child: TextButton(
+                        style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all(Colors.black),
+                            shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18.0),
+                                    side: BorderSide(color: Colors.black)))),
+                        onPressed: () {
+                          print('Button pressed');
+                          _countTemperature = 0;
+                          Navigator.pop(context);
+
+                          try {
+                            print(minPh);
+                            print(maxPh);
+                            double _minNut = double.parse(minNtu);
+                            double _maxNut = double.parse(maxNtu);
+
+                            _setSensorRef
+                                .child("set_nut")
+                                .update({"min_nut": _minNut});
+                            _setSensorRef
+                                .child("set_nut")
+                                .update({"max_nut": _maxNut});
+                          } catch (e) {
+                            print(e);
+                            Fluttertoast.showToast(
+                                msg: "กรุณากรอกเป็นตัวเลข",
+                                //toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.CENTER,
+                                timeInSecForIosWeb: 1,
+                                textColor: Colors.white,
+                                fontSize: 16.0);
+                          }
+                        },
+                        child: Text(
+                          'ยืนยัน',
+                          style: TextStyle(
+                            fontSize: 18,
+                            //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
+                            color: Colors.white, //font color
+                            //background color
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              )
+            ]),
+          )
+        ],
+      ),
+    );
+  }
+
   Widget _changePh(dynamic ph) {
     return Container(
       width: 50,
@@ -436,6 +628,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 children: [
                   Expanded(
                     child: TextFormField(
+                      onChanged: (value) => minPh = value,
+                      initialValue: ph["min_ph"].toString(),
                       decoration: const InputDecoration(
                         hintText: 'กำหนดค่าต่ำสุด',
                         labelText: 'กำหนดค่าต่ำสุด',
@@ -457,6 +651,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 children: [
                   Expanded(
                     child: TextFormField(
+                      onChanged: (value) => maxPh = value,
+                      initialValue: ph["max_ph"].toString(),
                       decoration: const InputDecoration(
                         hintText: 'กำหนดค่าสูงสุด',
                         labelText: 'กำหนดค่าสูงสุด',
@@ -489,10 +685,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                     borderRadius: BorderRadius.circular(18.0),
                                     side: BorderSide(color: Colors.black)))),
                         onPressed: () {
-                          print(_countTemperature.toString());
-                          _setSensorRef
-                              .update({"temperature": ph - _countTemperature});
-                          _countTemperature = 0;
                           Navigator.pop(context);
                         },
                         child: Text(
@@ -521,6 +713,29 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           print('Button pressed');
                           _countTemperature = 0;
                           Navigator.pop(context);
+
+                          try {
+                            print(minPh);
+                            print(maxPh);
+                            double _minPh = double.parse(minPh);
+                            double _maxPh = double.parse(maxPh);
+
+                            _setSensorRef
+                                .child("set_ph")
+                                .update({"min_ph": _minPh});
+                            _setSensorRef
+                                .child("set_ph")
+                                .update({"max_ph": _maxPh});
+                          } catch (e) {
+                            print(e);
+                            Fluttertoast.showToast(
+                                msg: "กรุณากรอกเป็นตัวเลข",
+                                //toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.CENTER,
+                                timeInSecForIosWeb: 1,
+                                textColor: Colors.white,
+                                fontSize: 16.0);
+                          }
                         },
                         child: Text(
                           'ยืนยัน',
