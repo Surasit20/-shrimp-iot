@@ -152,23 +152,65 @@ class _SettingScreenState extends State<SettingScreen> {
                           ),
                         ),
                       ),
-                      Container(
-                        margin: EdgeInsets.fromLTRB(28, 0, 40, 68),
-                        width: double.infinity,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(
-                              margin: EdgeInsets.fromLTRB(0, 0, 144.89, 0),
-                              child: Text(
-                                "รหัสผ่าน",
-                                style: GoogleFonts.inter(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w400,
+                      GestureDetector(
+                        onTap: () {
+                          String email = "";
+                          showDialog<void>(
+                            context: context,
+                            barrierDismissible: false, // user must tap button!
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('เปลี่ยนรหัสผ่าน'),
+                                content: SingleChildScrollView(
+                                  child: Column(
+                                    children: <Widget>[
+                                      Text('กรอกอีเมล์เพื่อเปลี่ยนรหัส'),
+                                      TextFormField(
+                                        onChanged: (value) => email = value,
+                                        onSaved: (String? value) {},
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                actions: <Widget>[
+                                  TextButton(
+                                    child: const Text('ยืนยัน'),
+                                    onPressed: () async {
+                                      await auth.sendPasswordResetEmail(
+                                          email: email);
+
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                  TextButton(
+                                    child: const Text('ยกเลิก'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: Container(
+                          margin: EdgeInsets.fromLTRB(28, 0, 40, 68),
+                          width: double.infinity,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Container(
+                                margin: EdgeInsets.fromLTRB(0, 0, 144.89, 0),
+                                child: Text(
+                                  "รหัสผ่าน",
+                                  style: GoogleFonts.inter(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w400,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                       Container(

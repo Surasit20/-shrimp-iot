@@ -303,6 +303,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       Map<String, dynamic> data = jsonDecode(
                           jsonEncode(snapshot!.data!.snapshot!.value));
 
+                      if (data["water_pump_in"] == true &&
+                          data["water_pump_out"] == true) {
+                        data["water_pump_in"] = false;
+                        data["water_pump_out"] = false;
+                        _setSensorRef.update({"water_pump_in": false});
+                        _setSensorRef.update({"water_pump_out": false});
+                      }
+
                       _readTemperature.add(data["temperature"]);
                       return GridView.count(
                           childAspectRatio: (1 / .3),
@@ -374,7 +382,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
             ),
             Text(
-              " ${type == "อุณหภูมิ" ? "C" : type == "ค่าความขุ่น" ? "NTU" : type == "ให้อาหารทุกๆ" ? "ชั่วโมง" : ""}",
+              " ${type == "อุณหภูมิ" ? "°C" : type == "ค่าความขุ่น" ? "NTU" : type == "ให้อาหารทุกๆ" ? "ชั่วโมง" : ""}",
               style: TextStyle(
                 fontSize: 20,
                 //line height 200%, 1= 100%, were 0.9 = 90% of actual line height
@@ -798,7 +806,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   icon: Icon(Icons.arrow_drop_up)),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [Text(temperature.toString()), Text("C")],
+                children: [Text(temperature.toString()), Text("°C")],
               ),
               IconButton(
                   onPressed: () {
